@@ -78,15 +78,18 @@ class IssuedInvoiceMapper(object):
 
     @classmethod
     def build_invoice_id(cls, invoice):
-        return {
+        ret = {
             'IDEmisorFactura': {
                 'NIF': cls.nif(invoice),
             },
             'NumSerieFacturaEmisor': cls.serial_number(invoice),
-            # TODO: NumSerieFacturaEmisorResumenFinal
             'FechaExpedicionFacturaEmisor':
                 cls.issue_date(invoice).strftime(_DATE_FMT),
         }
+        if cls.invoice_kind(invoice) == 'F4':
+            ret['NumSerieFacturaEmisorResumenFinal'] = \
+                cls.final_serial_number(invoice)
+        return ret
 
     @classmethod
     def build_issued_invoice(cls, invoice):
