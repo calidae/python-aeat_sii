@@ -7,15 +7,15 @@ install_requires = [
 ]
 
 tests_require = [
-    'pytest==3.0.6',
+    'pytest>3',
 ]
 
 setup(
     name='pyAEATsii',
     version='0.1',
-    description='A python wrapper for AEAT SII webservice',
+    description='A python wrapper for the AEAT SII webservices',
     author="Calidae S.L.",
-    author_email="info@calidae.com",
+    author_email="dev@calidae.com",
     url='http://www.calidae.com/',
     download_url='https://github.com/calidae/python-aeat_sii',
     install_requires=install_requires,
