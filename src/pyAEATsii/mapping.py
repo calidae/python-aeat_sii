@@ -11,6 +11,7 @@ from sets import ImmutableSet
 
 _DATE_FMT = '%d-%m-%Y'
 RECTIFIED_KINDS = ImmutableSet({'R1', 'R2', 'R3', 'R4', 'R5'})
+OTHER_ID_TYPES = ImmutableSet({'02', '03', '04', '05', '06', '07'})
 
 
 def _format_period(period):
@@ -75,15 +76,19 @@ class BaseInvoiceMapper(object):
         return ret
 
     def _build_counterpart(self, invoice):
-        return {
+        ret = {
             'NombreRazon': self.counterpart_name(invoice),
-            'NIF': self.counterpart_nif(invoice),
-            # 'IDOtro': {
-            #     'IDType': self.counterpart_id_type(invoice),
-            #     'CodigoPais': self.counterpart_country(invoice),
-            #     # 'ID': self.counterpart_nif(invoice),
-            # },
         }
+        id_type = self.counterpart_id_type(invoice)
+        if id_type and id_type in OTHER_ID_TYPES:
+            ret['IDOtro'] = {
+                'IDType': self.counterpart_id_type(invoice),
+                'CodigoPais': self.counterpart_country(invoice),
+                'ID': self.counterpart_id(invoice),
+            }
+        else:
+            ret['NIF'] = self.counterpart_nif(invoice)
+        return ret
 
 
 class IssuedInvoiceMapper(BaseInvoiceMapper):
