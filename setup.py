@@ -8,6 +8,7 @@ install_requires = [
 
 tests_require = [
     'pytest>3',
+    'mock',
 ]
 
 setup(
