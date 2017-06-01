@@ -180,7 +180,10 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
             'TipoImpositivo': int(100 * self.tax_rate(tax)),
             'BaseImponible': self.tax_base(tax),
             'CuotaRepercutida': self.tax_amount(tax),
-            # TODO: TipoRecargoEquivalencia, CuotaRecargoEquivalencia
+            'TipoRecargoEquivalencia':
+                self.tax_equivalence_surcharge_rate(tax),
+            'CuotaRecargoEquivalencia':
+                self.tax_equivalence_surcharge_amount(tax),
         }
 
 
@@ -258,6 +261,9 @@ class RecievedInvoiceMapper(BaseInvoiceMapper):
             'TipoImpositivo': int(100 * self.tax_rate(tax)),
             'BaseImponible': self.tax_base(tax),
             'CuotaSoportada': self.tax_amount(tax),
-            # TODO: TipoRecargoEquivalencia, CuotaRecargoEquivalencia
+            'TipoRecargoEquivalencia':
+                self.tax_equivalence_surcharge_rate(tax),
+            'CuotaRecargoEquivalencia':
+                self.tax_equivalence_surcharge_amount(tax),
             # TODO: PorcentCompensacionREAGYP, ImporteCompensacionREAGYP
         }
