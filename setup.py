@@ -3,7 +3,7 @@ from setuptools import setup
 from setuptools import find_packages
 
 install_requires = [
-    'zeep<2',
+    'zeep>=1.6',
 ]
 
 tests_require = [
