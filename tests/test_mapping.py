@@ -251,4 +251,4 @@ def test_summary_issued_invoice_id():
     mapper = IssuedTestInvoiceMapper()
     request_ = mapper.build_submit_request(invoice)
 
-    assert request_['IDFactura']['NumSerieFacturaEmisorResumenFinal'] == 'FINAL_ID'
+    assert request_['IDFactura']['NumSerieFacturaEmisorResumenFin'] == 'FINAL_ID'

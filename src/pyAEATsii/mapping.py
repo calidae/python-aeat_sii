@@ -57,7 +57,7 @@ class BaseInvoiceMapper(object):
                 self.issue_date(invoice).strftime(_DATE_FMT),
         }
         if self.invoice_kind(invoice) == 'F4':
-            ret['NumSerieFacturaEmisorResumenFinal'] = \
+            ret['NumSerieFacturaEmisorResumenFin'] = \
                 self.final_serial_number(invoice)
         return ret
 
