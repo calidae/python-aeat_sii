@@ -13,39 +13,41 @@ class RecievedTestInvoiceMapper(
 ):
     move_date = methodcaller('get', 'move_date')
     deductible_amount = methodcaller('get', 'deductible_amount')
-
-
-_simple_invoice = {
-    'year': 2017,
-    'period': 5,
-    'nif': '00000010X',
-    'serial_number': 1,
-    'issue_date': date(year=2017, month=12, day=31),
-    'move_date': date(year=2017, month=12, day=31),
-    'deductible_amount': 50,
-    'invoice_kind': 'L1',
-    'specialkey_or_trascendence': '01',
-    'description': 'My Description',
-    'not_exempt_kind': 'S1',
-    'counterpart_name': 'Counterpart',
-    'counterpart_nif': '00000011B',
-    'counterpart_id_type': '01',
-    'counterpart_country': 'ES',
-    'taxes': [{
-        'tax_rate': 21,
-        'tax_base': 100,
-        'tax_amount': 21,
-    }, {
-        'tax_rate': 10,
-        'tax_base': 10,
-        'tax_amount': 1,
-    }],
-}
+    tax_reagyp_rate = methodcaller('get', 'tax_reagyp_rate')
+    tax_reagyp_amount = methodcaller('get', 'tax_reagyp_amount')
 
 
 def test_simple_mapping():
+    invoice = {
+        'year': 2017,
+        'period': 5,
+        'nif': '00000010X',
+        'serial_number': 1,
+        'issue_date': date(year=2017, month=12, day=31),
+        'move_date': date(year=2017, month=12, day=31),
+        'deductible_amount': 50,
+        'invoice_kind': 'L1',
+        'specialkey_or_trascendence': '01',
+        'description': 'My Description',
+        'not_exempt_kind': 'S1',
+        'counterpart_name': 'Counterpart',
+        'counterpart_nif': '00000011B',
+        'counterpart_id_type': '01',
+        'counterpart_country': 'ES',
+        'taxes': [{
+            'tax_rate': 21,
+            'tax_base': 100,
+            'tax_amount': 21,
+        }, {
+            'tax_rate': 10,
+            'tax_base': 10,
+            'tax_amount': 1,
+        }],
+    }
+
     mapper = RecievedTestInvoiceMapper()
-    request_ = mapper.build_submit_request(_simple_invoice)
+    request_ = mapper.build_submit_request(invoice)
+
     assert request_['PeriodoImpositivo']['Periodo'] == '05'
     assert request_['IDFactura']['FechaExpedicionFacturaEmisor'] == '31-12-2017'
     taxes = request_['FacturaRecibida']['DesgloseFactura']['DesgloseIVA']['DetalleIVA']
@@ -60,3 +62,43 @@ def test_simple_mapping():
     assert 'IDOtro' not in request_['FacturaRecibida']['Contraparte']
     assert request_['FacturaRecibida']['Contraparte']['NIF'] == request_['IDFactura']['IDEmisorFactura']['NIF']
     assert request_['FacturaRecibida']['Contraparte']['NIF'] == '00000011B'
+
+
+def test_reagyp_mapping():
+    invoice = {
+        'year': 2017,
+        'period': 5,
+        'nif': '00000010X',
+        'serial_number': 1,
+        'issue_date': date(year=2017, month=12, day=31),
+        'move_date': date(year=2017, month=12, day=31),
+        'deductible_amount': 50,
+        'invoice_kind': 'L1',
+        'specialkey_or_trascendence': '02',
+        'description': 'My Description',
+        'not_exempt_kind': 'S1',
+        'counterpart_name': 'Counterpart',
+        'counterpart_nif': '00000011B',
+        'counterpart_id_type': '01',
+        'counterpart_country': 'ES',
+        'taxes': [{
+            'tax_rate': 21,
+            'tax_base': 100,
+            'tax_amount': 21,
+            'tax_reagyp_rate': 15,
+            'tax_reagyp_amount': 20,
+        }],
+    }
+    mapper = RecievedTestInvoiceMapper()
+    request_ = mapper.build_submit_request(invoice)
+
+    taxes = request_['FacturaRecibida']['DesgloseFactura']['DesgloseIVA']['DetalleIVA']
+
+    assert 'BaseImponible' in taxes[0]
+    assert 'TipoImpositivo' not in taxes[0]
+    assert 'CuotaSuportada' not in taxes[0]
+    assert 'TipoRecargoEquivalencia' not in taxes[0]
+    assert 'TipoRecargoEquivalencia' not in taxes[0]
+    assert 'CuotaRecargoEquivalencia' not in taxes[0]
+    assert taxes[0]['PorcentCompensacionREAGYP'] == 15
+    assert taxes[0]['ImporteCompensacionREAGYP'] == 20

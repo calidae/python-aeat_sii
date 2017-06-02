@@ -239,7 +239,10 @@ class RecievedInvoiceMapper(BaseInvoiceMapper):
                 # },
                 'DesgloseIVA': {
                     'DetalleIVA':
-                        map(self.build_taxes, self.taxes(invoice)),
+                        map(
+                            self.build_taxes,
+                            [invoice] * len(self.taxes(invoice)),
+                            self.taxes(invoice)),
                 }
             },
             'Contraparte': self._build_counterpart(invoice),
@@ -256,14 +259,21 @@ class RecievedInvoiceMapper(BaseInvoiceMapper):
             # TODO: ImporteRectificacion: {
             #   BaseRectificada, CuotaRectificada, CuotaRecargoRectificado }
 
-    def build_taxes(self, tax):
-        return {
-            'TipoImpositivo': int(100 * self.tax_rate(tax)),
+    def build_taxes(self, invoice, tax):
+        ret = {
             'BaseImponible': self.tax_base(tax),
-            'CuotaSoportada': self.tax_amount(tax),
-            'TipoRecargoEquivalencia':
-                self.tax_equivalence_surcharge_rate(tax),
-            'CuotaRecargoEquivalencia':
-                self.tax_equivalence_surcharge_amount(tax),
-            # TODO: PorcentCompensacionREAGYP, ImporteCompensacionREAGYP
         }
+        if self.specialkey_or_trascendence(invoice) != '02':
+
+            ret['TipoImpositivo'] = int(100 * self.tax_rate(tax))
+            ret['CuotaSoportada'] = self.tax_amount(tax)
+            ret['TipoRecargoEquivalencia'] = \
+                self.tax_equivalence_surcharge_rate(tax)
+            ret['CuotaRecargoEquivalencia'] = \
+                self.tax_equivalence_surcharge_amount(tax)
+        else:
+            ret['PorcentCompensacionREAGYP'] = \
+                self.tax_reagyp_rate(tax)
+            ret['ImporteCompensacionREAGYP'] = \
+                self.tax_reagyp_amount(tax)
+        return ret
