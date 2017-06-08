@@ -29,5 +29,5 @@ class BaseTestInvoiceMapper(object):
     tax_rate = methodcaller('get', 'tax_rate')
     tax_base = methodcaller('get', 'tax_base')
     tax_amount = methodcaller('get', 'tax_amount')
-    tax_equivalence_surcharge_rate = callback_utils.fixed_value(None)
-    tax_equivalence_surcharge_amount = callback_utils.fixed_value(None)
+    tax_equivalence_surcharge_rate = methodcaller('get', 'tax_equivalence_surcharge_rate')
+    tax_equivalence_surcharge_amount = methodcaller('get', 'tax_equivalence_surcharge_amount')

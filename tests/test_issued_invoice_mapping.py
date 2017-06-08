@@ -29,11 +29,11 @@ def test_issued_invoice_mapping():
         'counterpart_id_type': '01',
         'counterpart_country': 'ES',
         'taxes': [{
-            'tax_rate': 21,
+            'tax_rate': .21,
             'tax_base': 100,
             'tax_amount': 21,
         }, {
-            'tax_rate': 10,
+            'tax_rate': .10,
             'tax_base': 10,
             'tax_amount': 1,
         }],
@@ -46,6 +46,8 @@ def test_issued_invoice_mapping():
     assert len(taxes) == 2
     assert taxes[0]['BaseImponible'] == 100
     assert taxes[1]['BaseImponible'] == 10
+    assert taxes[0]['TipoImpositivo'] == 21
+    assert taxes[1]['TipoImpositivo'] == 10
     assert 'ImporteRectificacion' not in request_['FacturaExpedida']
     assert 'FacturasRectificadas' not in request_['FacturaExpedida']
     assert 'FacturasRectificadas' not in request_['FacturaExpedida']
@@ -69,11 +71,11 @@ def test_uncensed_counterpart():
         'counterpart_id_type': '07',
         'counterpart_country': 'ES',
         'taxes': [{
-            'tax_rate': 21,
+            'tax_rate': .21,
             'tax_base': 100,
             'tax_amount': 21,
         }, {
-            'tax_rate': 10,
+            'tax_rate': .10,
             'tax_base': 10,
             'tax_amount': 1,
         }],
@@ -103,11 +105,11 @@ def test_rectified_issued_invoice_mapping():
         'counterpart_id_type': '07',
         'counterpart_country': 'ES',
         'taxes': [{
-            'tax_rate': 21,
+            'tax_rate': .21,
             'tax_base': 100,
             'tax_amount': 21,
         }, {
-            'tax_rate': 10,
+            'tax_rate': .10,
             'tax_base': 10,
             'tax_amount': 1,
         }],
@@ -137,11 +139,11 @@ def test_rectified_by_difference_issued_invoice_mapping():
         'counterpart_id_type': '07',
         'counterpart_country': 'ES',
         'taxes': [{
-            'tax_rate': 21,
+            'tax_rate': .21,
             'tax_base': 100,
             'tax_amount': 21,
         }, {
-            'tax_rate': 10,
+            'tax_rate': .10,
             'tax_base': 10,
             'tax_amount': 1,
         }],
@@ -170,7 +172,7 @@ def test_rectified_simplified_issued_invoice_with_1_line_mapping():
         'counterpart_id_type': '07',
         'counterpart_country': 'ES',
         'taxes': [{
-            'tax_rate': 21,
+            'tax_rate': .21,
             'tax_base': 0,
             'tax_amount': 0,
         }],
@@ -203,11 +205,11 @@ def test_summary_issued_invoice_id():
         'counterpart_id_type': '07',
         'counterpart_country': 'ES',
         'taxes': [{
-            'tax_rate': 21,
+            'tax_rate': .21,
             'tax_base': 100,
             'tax_amount': 21,
         }, {
-            'tax_rate': 10,
+            'tax_rate': .10,
             'tax_base': 10,
             'tax_amount': 1,
         }],

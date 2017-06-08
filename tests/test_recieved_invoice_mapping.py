@@ -35,11 +35,13 @@ def test_simple_mapping():
         'counterpart_id_type': '01',
         'counterpart_country': 'ES',
         'taxes': [{
-            'tax_rate': 21,
+            'tax_rate': .21,
             'tax_base': 100,
             'tax_amount': 21,
+            'tax_equivalence_surcharge_rate': .052,
+            'tax_equivalence_surcharge_amount': 5.2,
         }, {
-            'tax_rate': 10,
+            'tax_rate': .10,
             'tax_base': 10,
             'tax_amount': 1,
         }],
@@ -54,6 +56,10 @@ def test_simple_mapping():
     assert len(taxes) == 2
     assert taxes[0]['BaseImponible'] == 100
     assert taxes[1]['BaseImponible'] == 10
+    assert taxes[0]['TipoImpositivo'] == 21
+    assert taxes[1]['TipoImpositivo'] == 10
+    assert taxes[0]['TipoRecargoEquivalencia'] == 5.2
+    assert taxes[1].get('TipoRecargoEquivalencia') is None
     assert 'PorcentCompensacionREAGYP' not in taxes[0]
     assert 'ImporteCompensacionREAGYP' not in taxes[0]
     assert 'ImporteRectificacion' not in request_['FacturaRecibida']
@@ -82,11 +88,11 @@ def test_reagyp_mapping():
         'counterpart_id_type': '01',
         'counterpart_country': 'ES',
         'taxes': [{
-            'tax_rate': 21,
+            'tax_rate': .21,
             'tax_base': 100,
             'tax_amount': 21,
-            'tax_reagyp_rate': 15,
-            'tax_reagyp_amount': 20,
+            'tax_reagyp_rate': .12,
+            'tax_reagyp_amount': 12,
         }],
     }
     mapper = RecievedTestInvoiceMapper()
@@ -100,5 +106,5 @@ def test_reagyp_mapping():
     assert 'TipoRecargoEquivalencia' not in taxes[0]
     assert 'TipoRecargoEquivalencia' not in taxes[0]
     assert 'CuotaRecargoEquivalencia' not in taxes[0]
-    assert taxes[0]['PorcentCompensacionREAGYP'] == 15
-    assert taxes[0]['ImporteCompensacionREAGYP'] == 20
+    assert taxes[0]['PorcentCompensacionREAGYP'] == 12
+    assert taxes[0]['ImporteCompensacionREAGYP'] == 12

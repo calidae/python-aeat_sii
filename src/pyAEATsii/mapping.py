@@ -17,6 +17,10 @@ def _format_period(period):
     return str(period).zfill(2)
 
 
+def _rate_to_percent(rate):
+    return None if rate is None else round(100 * rate, 2)
+
+
 def build_query_filter(year=None, period=None):
     return {
         'PeriodoImpositivo': {
@@ -177,11 +181,12 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
 
     def build_taxes(self, tax):
         return {
-            'TipoImpositivo': int(100 * self.tax_rate(tax)),
+            'TipoImpositivo': _rate_to_percent(self.tax_rate(tax)),
             'BaseImponible': self.tax_base(tax),
             'CuotaRepercutida': self.tax_amount(tax),
             'TipoRecargoEquivalencia':
-                self.tax_equivalence_surcharge_rate(tax),
+                _rate_to_percent(self.tax_equivalence_surcharge_rate(tax)),
+
             'CuotaRecargoEquivalencia':
                 self.tax_equivalence_surcharge_amount(tax),
         }
@@ -265,15 +270,15 @@ class RecievedInvoiceMapper(BaseInvoiceMapper):
         }
         if self.specialkey_or_trascendence(invoice) != '02':
 
-            ret['TipoImpositivo'] = int(100 * self.tax_rate(tax))
+            ret['TipoImpositivo'] = _rate_to_percent(self.tax_rate(tax))
             ret['CuotaSoportada'] = self.tax_amount(tax)
             ret['TipoRecargoEquivalencia'] = \
-                self.tax_equivalence_surcharge_rate(tax)
+                _rate_to_percent(self.tax_equivalence_surcharge_rate(tax))
             ret['CuotaRecargoEquivalencia'] = \
                 self.tax_equivalence_surcharge_amount(tax)
         else:
             ret['PorcentCompensacionREAGYP'] = \
-                self.tax_reagyp_rate(tax)
+                _rate_to_percent(self.tax_reagyp_rate(tax))
             ret['ImporteCompensacionREAGYP'] = \
-                self.tax_reagyp_amount(tax)
+                (self.tax_reagyp_amount(tax))
         return ret
