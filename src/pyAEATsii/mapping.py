@@ -205,11 +205,7 @@ class RecievedInvoiceMapper(BaseInvoiceMapper):
             'FacturaRecibida': self.build_invoice(invoice),
         }
 
-    def _build_issuer_id(self, invoice):
-        return {
-            'NIF': self.counterpart_nif(invoice),
-            # TODO: IDOtro: {CodigoPais, IDType, ID}
-        }
+    _build_issuer_id = BaseInvoiceMapper._build_counterpart
 
     def build_named_invoice_id(self, invoice):
         return {
