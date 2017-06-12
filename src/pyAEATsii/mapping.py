@@ -6,11 +6,9 @@ __all__ = [
     'RecievedInvoiceMapper',
 ]
 
-from sets import ImmutableSet
-
 _DATE_FMT = '%d-%m-%Y'
-RECTIFIED_KINDS = ImmutableSet({'R1', 'R2', 'R3', 'R4', 'R5'})
-OTHER_ID_TYPES = ImmutableSet({'02', '03', '04', '05', '06', '07'})
+RECTIFIED_KINDS = frozenset({'R1', 'R2', 'R3', 'R4', 'R5'})
+OTHER_ID_TYPES = frozenset({'02', '03', '04', '05', '06', '07'})
 
 
 def _format_period(period):
