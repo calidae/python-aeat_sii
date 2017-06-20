@@ -16,7 +16,7 @@ def _format_period(period):
 
 
 def _rate_to_percent(rate):
-    return None if rate is None else round(100 * rate, 2)
+    return None if rate is None else abs(round(100 * rate, 2))
 
 
 def build_query_filter(year=None, period=None):
@@ -108,7 +108,7 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
             # TODO: ClaveRegimenEspecialOTrascendenciaAdicional1
             # TODO: ClaveRegimenEspecialOTrascendenciaAdicional2
             # TODO: NumRegistroAcuerdoFacturacion
-            # TODO: ImporteTotal
+            'ImporteTotal': self.total_amount(invoice),
             # TODO: BaseImponibleACoste
             'DescripcionOperacion': self.description(invoice),
             # TODO: DatosInmueble
@@ -116,34 +116,55 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
             # TODO: EmitidaPorTerceros
             # TODO: VariosDestinatarios
             # TODO: Cupon
-            'TipoDesglose': {
-                'DesgloseFactura': {
-                    'Sujeta': {
-                        # 'Exenta': {
-                        #     'CausaExcencion': E1-E6
-                        #     'BaseImponible': '0.00',
-                        # },
-                        'NoExenta': {
-                            'TipoNoExenta': self.not_exempt_kind(invoice),
-                            'DesgloseIVA': {
-                                'DetalleIVA':
-                                    map(self.build_taxes, self.taxes(invoice)),
-                            }
-                        },
-                    },
-                    # 'NoSujeta': {
-                    #     'ImportePorArticulos7_14_Otros': 0,
-                    #     'ImporteTAIReglasLocalizacion': 0,
-                    # },
-                },
-                # 'DesgloseTipoOperacion': {
-                #     'PrestacionDeServicios':
-                #         {'Sujeta': {'Exenta': {}, 'NoExenta': {}}, 'NoSujeta': {}},
-                #     'Entrega':
-                #         {'Sujeta': {'Exenta': {}, 'NoExenta': {}}, 'NoSujeta': {}},
-                # },
-            },
+            'TipoDesglose': {},
         }
+        if self.taxes(invoice):
+            ret['TipoDesglose'].update({
+                'DesgloseFactura': {'Sujeta': {}}
+            })
+        else:
+            ret['TipoDesglose'].update({
+                'DesgloseTipoOperacion': {
+                    'Entrega': {
+                        'Sujeta': {}
+                    }
+                }
+            })
+        if self.not_excempt_kind(invoice):
+            ret['TipoDesglose']['DesgloseFactura']['Sujeta'].update({
+                'NoExenta': {
+                    'TipoNoExenta': self.not_excempt_kind(invoice),
+                    'DesgloseIVA': {
+                        'DetalleIVA':
+                            map(self.build_taxes, self.taxes(invoice)),
+                    }
+                }
+            })
+        if self.excempt_kind(invoice):
+            if self.taxes(invoice):
+                ret['TipoDesglose']['DesgloseFactura']['Sujeta'].update({
+                    'Exenta': {
+                        'CausaExencion': self.excempt_kind(invoice),
+                        'BaseImponible': self.untaxed_amount(invoice),
+                    }
+                })
+            else:
+                ret['TipoDesglose']['DesgloseTipoOperacion']['Entrega'].get(
+                    'Sujeta').update({
+                        'Exenta': {
+                            'CausaExencion': self.excempt_kind(invoice),
+                            'BaseImponible': self.untaxed_amount(invoice),
+                        }
+                    })
+        # TODO:
+        # 'NoSujeta': {
+        #     'ImportePorArticulos7_14_Otros': 0,
+        #     'ImporteTAIReglasLocalizacion': 0,
+        # },
+        # TODO:
+        # 'PrestacionDeServicios':
+        #         {'Sujeta': {'Exenta': {}, 'NoExenta': {}}, 'NoSujeta': {}},
+
         self._update_total_amount(ret, invoice)
         self._update_counterpart(ret, invoice)
         self._update_rectified_invoice(ret, invoice)
@@ -152,6 +173,8 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
     def _update_total_amount(self, ret, invoice):
         if (
             ret['TipoFactura'] == 'R5' and
+            ret['TipoDesglose']['DesgloseFactura']['Sujeta'].get('NoExenta',
+                None) and
             len(
                 ret['TipoDesglose']['DesgloseFactura']['Sujeta']['NoExenta']
                 ['DesgloseIVA']['DetalleIVA']
@@ -228,7 +251,7 @@ class RecievedInvoiceMapper(BaseInvoiceMapper):
             # TODO: ClaveRegimenEspecialOTrascendenciaAdicional1
             # TODO: ClaveRegimenEspecialOTrascendenciaAdicional2
             # TODO: NumRegistroAcuerdoFacturacion
-            # TODO: ImporteTotal
+            'ImporteTotal': self.total_amount(invoice),
             # TODO: BaseImponibleACoste
             'DescripcionOperacion': self.description(invoice),
             'DesgloseFactura': {
