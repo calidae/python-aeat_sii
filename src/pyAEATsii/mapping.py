@@ -260,17 +260,21 @@ class RecievedInvoiceMapper(BaseInvoiceMapper):
                 #         map(self.build_taxes, self.taxes(invoice)),
                 # },
                 'DesgloseIVA': {
-                    'DetalleIVA':
-                        map(
-                            self.build_taxes,
-                            [invoice] * len(self.taxes(invoice)),
-                            self.taxes(invoice)),
+                    'DetalleIVA': {}
                 }
             },
             'Contraparte': self._build_counterpart(invoice),
             'FechaRegContable': self.move_date(invoice).strftime(_DATE_FMT),
             'CuotaDeducible': self.deductible_amount(invoice),
         }
+        _taxes = self.taxes(invoice)
+        if _taxes:
+            ret['DesgloseFactura']['DesgloseIVA']['DetalleIVA'].update(
+                map(self.build_taxes, [invoice] * len(_taxes), _taxes))
+        else:
+            ret['DesgloseFactura']['DesgloseIVA']['DetalleIVA'].update({
+                'BaseImponible': self.untaxed_amount(invoice)})
+
         self._update_rectified_invoice(ret, invoice)
         return ret
 
