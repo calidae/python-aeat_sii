@@ -152,3 +152,96 @@ def test_reagyp_mapping():
     assert 'CuotaRecargoEquivalencia' not in taxes[0]
     assert taxes[0]['PorcentCompensacionREAGYP'] == 12
     assert taxes[0]['ImporteCompensacionREAGYP'] == 12
+
+
+def test_intracommunitary_subjected():
+    invoice = {
+        'year': 2017,
+        'period': 5,
+        'nif': '00000010X',
+        'serial_number': 1,
+        'issue_date': date(year=2017, month=12, day=31),
+        'move_date': date(year=2017, month=12, day=31),
+        'invoice_kind': 'L1',
+        'specialkey_or_trascendence': '09',
+        'description': 'My Description',
+        'not_exempt_kind': 'S1',
+        'counterpart_name': 'Counterpart',
+        'counterpart_nif': 'FR00000011B',
+        'counterpart_id_type': '02',
+        'counterpart_country': 'FR',
+        'untaxed_amount': 100,
+        'total_amount': 100,
+        'taxes': [{
+            'tax_rate': .21,
+            'tax_base': 100,
+            'tax_amount': 21,
+        }, {
+            'tax_rate': -0.21,
+            'tax_base': 100,
+            'tax_amount': -21,
+        }],
+    }
+
+    mapper = RecievedTestInvoiceMapper()
+    request_ = mapper.build_submit_request(invoice)
+
+    counterpart = request_['FacturaRecibida']['Contraparte']
+    invoice_issuer = request_['IDFactura']['IDEmisorFactura']
+    print request_
+    taxes = request_['FacturaRecibida']['DesgloseFactura'][
+        'DesgloseIVA']['DetalleIVA']
+    assert len(taxes) == 2
+    assert taxes[0]['BaseImponible'] == 100
+    assert taxes[0]['TipoImpositivo'] == 21
+    assert taxes[0]['CuotaSoportada'] == 21
+    assert taxes[1]['BaseImponible'] == 100
+    assert taxes[1]['TipoImpositivo'] == 21
+    assert taxes[1]['CuotaSoportada'] == -21
+    assert 'NIF' not in counterpart
+    assert 'NIF' not in invoice_issuer
+    counterpart_id = counterpart['IDOtro']
+    issuer_id = invoice_issuer['IDOtro']
+    assert counterpart_id['IDType'] == issuer_id['IDType'] == '02'
+    assert counterpart_id['CodigoPais'] == issuer_id['CodigoPais'] == 'FR'
+    assert counterpart_id['ID'] == issuer_id['ID'] == 'FR00000011B'
+
+
+def test_intracommunitary_exempt():
+    invoice = {
+        'year': 2017,
+        'period': 5,
+        'nif': '00000010X',
+        'serial_number': 1,
+        'issue_date': date(year=2017, month=12, day=31),
+        'move_date': date(year=2017, month=12, day=31),
+        'invoice_kind': 'L1',
+        'specialkey_or_trascendence': '01',
+        'description': 'My Description',
+        'exempt_kind': 'E5',
+        'counterpart_name': 'Counterpart',
+        'counterpart_nif': 'FR00000011B',
+        'counterpart_id_type': '02',
+        'counterpart_country': 'FR',
+        'untaxed_amount': 100,
+        'total_amount': 100,
+        'taxes': [],
+    }
+
+    mapper = RecievedTestInvoiceMapper()
+    request_ = mapper.build_submit_request(invoice)
+    print request_
+    counterpart = request_['FacturaRecibida']['Contraparte']
+    invoice_issuer = request_['IDFactura']['IDEmisorFactura']
+    taxes = request_['FacturaRecibida']['DesgloseFactura'][
+        'DesgloseIVA']['DetalleIVA']
+    assert len(taxes) == 1
+    assert taxes[0]['BaseImponible'] == 100
+    assert request_['FacturaRecibida']['ImporteTotal'] == 100
+    assert 'NIF' not in counterpart
+    assert 'NIF' not in invoice_issuer
+    counterpart_id = counterpart['IDOtro']
+    issuer_id = invoice_issuer['IDOtro']
+    assert counterpart_id['IDType'] == issuer_id['IDType'] == '02'
+    assert counterpart_id['CodigoPais'] == issuer_id['CodigoPais'] == 'FR'
+    assert counterpart_id['ID'] == issuer_id['ID'] == 'FR00000011B'
