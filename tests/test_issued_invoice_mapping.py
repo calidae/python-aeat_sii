@@ -262,6 +262,8 @@ def test_issued_invoice_inv_subj_pass_mapping():
     assert len(taxes) == 1
     assert taxes[0]['BaseImponible'] == 100
     assert taxes[0]['TipoImpositivo'] == 0
+    assert 'NoSujeta' not in request_['FacturaExpedida']['TipoDesglose'][
+        'DesgloseFactura']
     assert 'ImporteRectificacion' not in request_['FacturaExpedida']
     assert 'FacturasRectificadas' not in request_['FacturaExpedida']
     assert 'FacturasRectificadas' not in request_['FacturaExpedida']
@@ -294,6 +296,7 @@ def test_issued_invoice_inv_subj_pass_intra_mapping():
     assert request_['PeriodoImpositivo']['Periodo'] == '05'
     assert request_['IDFactura']['FechaExpedicionFacturaEmisor'] == \
         '31-12-2017'
+    assert 'DesgloseFactura' not in request_['FacturaExpedida']['TipoDesglose']
     taxes = request_['FacturaExpedida']['TipoDesglose'][
         'DesgloseTipoOperacion']['Entrega']['Sujeta']['NoExenta'][
         'DesgloseIVA']['DetalleIVA']

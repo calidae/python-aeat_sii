@@ -118,45 +118,42 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
             # TODO: Cupon
             'TipoDesglose': {},
         }
-        national_inv_subj = (self.not_exempt_kind(invoice) == 'S2' and
-            self.counterpart_country(invoice) == 'ES')
+        self._update_counterpart(ret, invoice)
+        must_detail_op = (ret.get('Contraparte', {}) and (
+            'IDOtro' in ret['Contraparte'] or ('NIF' in ret['Contraparte'] and
+                ret['Contraparte']['NIF'].startswith('N')))
+        )
+        location_rules = (self.specialkey_or_trascendence(invoice) == '08' or
+            (must_detail_op and self.not_exempt_kind(invoice) == 'S2'))
 
-        if self.taxes(invoice) or national_inv_subj:
+        detail = {
+            'Sujeta': {},
+            'NoSujeta': {}
+        }
+        if must_detail_op:
             ret['TipoDesglose'].update({
-                'DesgloseFactura': {'Sujeta': {}}
+                'DesgloseTipoOperacion': {
+                    'Entrega': detail,
+                    # 'PrestacionDeServicios': {},
+                }
             })
         else:
             ret['TipoDesglose'].update({
-                'DesgloseTipoOperacion': {
-                    'Entrega': {
-                        'Sujeta': {}
-                    }
-                }
+                'DesgloseFactura': detail
             })
+
         if self.not_exempt_kind(invoice):
-            tax_detail = map(self.build_taxes, self.taxes(invoice))
-            root_detail = None
-            # inv. subj. pass.
             if self.not_exempt_kind(invoice) == 'S2':
-                tax_detail.append({
+                # inv. subj. pass.
+                tax_detail = [{
                     'TipoImpositivo': 0,
                     'BaseImponible': self.untaxed_amount(invoice),
                     'CuotaRepercutida': 0
-                })
-                if not national_inv_subj:
-                    root_detail = ret['TipoDesglose'][
-                        'DesgloseTipoOperacion']['Entrega']['Sujeta']
-                    ret['TipoDesglose']['DesgloseTipoOperacion'].get(
-                        'Entrega').update({
-                            'NoSujeta': {
-                                'ImporteTAIReglasLocalizacion':
-                                    self.untaxed_amount(invoice)
-                            }
-                        })
+                }]
+            else:
+                tax_detail = map(self.build_taxes, self.taxes(invoice))
             if tax_detail:
-                if root_detail is None:
-                    root_detail = ret['TipoDesglose']['DesgloseFactura']['Sujeta']
-                root_detail.update({
+                detail['Sujeta'].update({
                     'NoExenta': {
                         'TipoNoExenta': self.not_exempt_kind(invoice),
                         'DesgloseIVA': {
@@ -165,32 +162,23 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
                     }
                 })
         elif self.exempt_kind(invoice):
-            if self.taxes(invoice):
-                ret['TipoDesglose']['DesgloseFactura']['Sujeta'].update({
-                    'Exenta': {
-                        'CausaExencion': self.exempt_kind(invoice),
-                        'BaseImponible': self.untaxed_amount(invoice),
-                    }
-                })
-            else:
-                ret['TipoDesglose']['DesgloseTipoOperacion']['Entrega'].get(
-                    'Sujeta').update({
-                        'Exenta': {
-                            'CausaExencion': self.exempt_kind(invoice),
-                            'BaseImponible': self.untaxed_amount(invoice),
-                        }
-                    })
-        # TODO:
-        # 'NoSujeta': {
-        #     'ImportePorArticulos7_14_Otros': 0,
-        #     'ImporteTAIReglasLocalizacion': 0,
-        # },
-        # TODO:
-        # 'PrestacionDeServicios':
-        #         {'Sujeta': {'Exenta': {}, 'NoExenta': {}}, 'NoSujeta': {}},
+            detail['Sujeta'].update({
+                'Exenta': {
+                    'CausaExencion': self.exempt_kind(invoice),
+                    'BaseImponible': self.untaxed_amount(invoice),
+                }
+            })
+        if location_rules:
+            detail['NoSujeta'].update({
+                # ImportePorArticulos7_14_Otros: 0,
+                'ImporteTAIReglasLocalizacion': self.untaxed_amount(invoice)
+            })
+        # remove unused key
+        for key in ('Sujeta', 'NoSujeta'):
+            if not detail[key]:
+                detail.pop(key)
 
         self._update_total_amount(ret, invoice)
-        self._update_counterpart(ret, invoice)
         self._update_rectified_invoice(ret, invoice)
         return ret
 
