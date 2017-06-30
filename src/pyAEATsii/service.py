@@ -16,6 +16,9 @@ from .mapping import build_query_filter
 
 _logger = getLogger(__name__)
 
+wsdl_base = ('https://www2.agenciatributaria.gob.es/static_files/common/'
+    'internet/dep/aplicaciones/es/aeat/ssii/fact/ws/')
+
 
 def _get_client(wsdl, public_crt, private_key, test=False):
     session = Session()
@@ -31,12 +34,7 @@ def _get_client(wsdl, public_crt, private_key, test=False):
 
 
 def bind_issued_invoices_service(crt, pkey, test=False):
-    wsdl = (
-        'http://www.agenciatributaria.es/static_files/AEAT/'
-        'Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/'
-        'Suministro_inmediato_informacion/FicherosSuministros/V_07/'
-        'SuministroFactEmitidas.wsdl'
-    )
+    wsdl = wsdl_base + 'SuministroFactEmitidas.wsdl'
     port_name = 'SuministroFactEmitidas'
     if test:
         port_name += 'Pruebas'
@@ -48,12 +46,7 @@ def bind_issued_invoices_service(crt, pkey, test=False):
 
 
 def bind_recieved_invoices_service(crt, pkey, test=False):
-    wsdl = (
-        'http://www.agenciatributaria.es/static_files/AEAT/'
-        'Contenidos_Comunes/La_Agencia_Tributaria/Modelos_y_formularios/'
-        'Suministro_inmediato_informacion/FicherosSuministros/V_07/'
-        'SuministroFactRecibidas.wsdl'
-    )
+    wsdl = wsdl_base + 'SuministroFactRecibidas.wsdl'
     port_name = 'SuministroFactRecibidas'
     if test:
         port_name += 'Pruebas'
