@@ -31,7 +31,7 @@ def build_query_filter(year=None, period=None):
     }
 
 
-def get_headers(name=None, vat=None, comm_kind=None, version='0.7'):
+def get_headers(name=None, vat=None, comm_kind=None, version='1.0'):
     return {
         'IDVersionSii': version,
         'Titular': {
