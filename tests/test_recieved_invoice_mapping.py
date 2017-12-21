@@ -66,8 +66,11 @@ def test_simple_mapping():
     assert 'FacturasRectificadas' not in request_['FacturaRecibida']
     assert 'FacturasRectificadas' not in request_['FacturaRecibida']
     assert 'IDOtro' not in request_['FacturaRecibida']['Contraparte']
-    assert request_['FacturaRecibida']['Contraparte']['NIF'] == request_['IDFactura']['IDEmisorFactura']['NIF']
+    assert request_['FacturaRecibida']['Contraparte']['NIF'] == \
+        request_['IDFactura']['IDEmisorFactura']['NIF']
     assert request_['FacturaRecibida']['Contraparte']['NIF'] == '00000011B'
+    assert request_['FacturaRecibida']['DescripcionOperacion'] == \
+        "My Description"
 
 
 def test_foreign_counterpart():

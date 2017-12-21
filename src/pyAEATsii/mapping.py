@@ -7,6 +7,8 @@ __all__ = [
 ]
 
 _DATE_FMT = '%d-%m-%Y'
+_FIRST_SEMESTER_RECORD_DESCRIPTION = "Registro del Primer semestre"
+
 RECTIFIED_KINDS = frozenset({'R1', 'R2', 'R3', 'R4', 'R5'})
 OTHER_ID_TYPES = frozenset({'02', '03', '04', '05', '06', '07'})
 
@@ -78,8 +80,18 @@ class BaseInvoiceMapper(object):
             ret['NIF'] = self.counterpart_nif(invoice)
         return ret
 
+    def _description(self, invoice):
+        return (
+            self.description(invoice)
+            if not self._is_first_semester(invoice)
+            else _FIRST_SEMESTER_RECORD_DESCRIPTION
+        )
+
 
 class IssuedInvoiceMapper(BaseInvoiceMapper):
+
+    def _is_first_semester(self, invoice):
+        return self.specialkey_or_trascendence(invoice) == '16'
 
     def build_delete_request(self, invoice):
         return {
@@ -110,7 +122,7 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
             # TODO: NumRegistroAcuerdoFacturacion
             'ImporteTotal': self.total_amount(invoice),
             # TODO: BaseImponibleACoste
-            'DescripcionOperacion': self.description(invoice),
+            'DescripcionOperacion': self._description(invoice),
             # TODO: DatosInmueble
             # TODO: ImporteTransmisionSujetoAIVA
             # TODO: EmitidaPorTerceros

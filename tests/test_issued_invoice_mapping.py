@@ -55,6 +55,8 @@ def test_issued_invoice_mapping():
     assert 'FacturasRectificadas' not in request_['FacturaExpedida']
     assert 'IDOtro' not in request_['FacturaExpedida']['Contraparte']
     assert request_['FacturaExpedida']['Contraparte']['NIF'] == '00000011B'
+    assert request_['FacturaExpedida']['DescripcionOperacion'] == \
+        "My Description"
 
 
 def test_uncensed_counterpart():
@@ -348,3 +350,38 @@ def test_issued_invoice_goods_intra_mapping():
     assert 'IDOtro' in request_['FacturaExpedida']['Contraparte']
     assert request_['FacturaExpedida']['Contraparte']['IDOtro']['ID'] == \
         'LT00000011B'
+
+
+def test_issued_invoice_first_semester_mapping():
+    invoice = {
+        'year': 2017,
+        'period': 5,
+        'nif': '00000010X',
+        'serial_number': 1,
+        'issue_date': date(year=2017, month=3, day=15),
+        'invoice_kind': 'L1',
+        'specialkey_or_trascendence': '16',  # "Primer semestre"
+        'description': 'My Description',
+        'not_exempt_kind': 'S1',
+        'counterpart_name': 'Counterpart',
+        'counterpart_nif': '00000011B',
+        'counterpart_id_type': '01',
+        'counterpart_country': 'ES',
+        'untaxed_amount': 110,
+        'total_amount': 132,
+        'taxes': [{
+            'tax_rate': .21,
+            'tax_base': 100,
+            'tax_amount': 21,
+        }, {
+            'tax_rate': .10,
+            'tax_base': 10,
+            'tax_amount': 1,
+        }],
+    }
+    mapper = IssuedTestInvoiceMapper()
+    request_ = mapper.build_submit_request(invoice)
+    assert (
+        request_['FacturaExpedida']['DescripcionOperacion'] ==
+        "Registro del Primer semestre"
+    )
