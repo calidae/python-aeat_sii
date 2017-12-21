@@ -72,6 +72,7 @@ def test_simple_mapping():
     assert request_['FacturaRecibida']['DescripcionOperacion'] == \
         "My Description"
     assert request_['FacturaRecibida']['CuotaDeducible'] == 50
+    assert request_['FacturaRecibida']['FechaRegContable'] == '31-12-2017'
 
 
 def test_foreign_counterpart():
@@ -257,8 +258,8 @@ def test_recieved_invoice_first_semester_mapping():
         'period': 5,
         'nif': '00000010X',
         'serial_number': 1,
-        'issue_date': date(year=2017, month=12, day=31),
-        'move_date': date(year=2017, month=12, day=31),
+        'issue_date': date(year=2017, month=3, day=15),
+        'move_date': date(year=2017, month=3, day=15),
         'deductible_amount': 50,
         'invoice_kind': 'L1',
         'specialkey_or_trascendence': '14',  # "Primer semestre"
@@ -287,3 +288,5 @@ def test_recieved_invoice_first_semester_mapping():
     assert request_['FacturaRecibida']['DescripcionOperacion'] == \
         "Registro del Primer semestre"
     assert request_['FacturaRecibida']['CuotaDeducible'] == 0
+    assert request_['FacturaRecibida']['FechaRegContable'] == \
+        date.today().strftime(mapping._DATE_FMT)
