@@ -71,6 +71,7 @@ def test_simple_mapping():
     assert request_['FacturaRecibida']['Contraparte']['NIF'] == '00000011B'
     assert request_['FacturaRecibida']['DescripcionOperacion'] == \
         "My Description"
+    assert request_['FacturaRecibida']['CuotaDeducible'] == 50
 
 
 def test_foreign_counterpart():
@@ -285,3 +286,4 @@ def test_recieved_invoice_first_semester_mapping():
 
     assert request_['FacturaRecibida']['DescripcionOperacion'] == \
         "Registro del Primer semestre"
+    assert request_['FacturaRecibida']['CuotaDeducible'] == 0

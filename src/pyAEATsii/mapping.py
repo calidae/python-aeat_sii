@@ -242,6 +242,13 @@ class RecievedInvoiceMapper(BaseInvoiceMapper):
     def _is_first_semester(self, invoice):
         return self.specialkey_or_trascendence(invoice) == '14'
 
+    def _deductible_amount(self, invoice):
+        return (
+            self.deductible_amount(invoice)
+            if not self._is_first_semester(invoice)
+            else 0
+        )
+
     def build_delete_request(self, invoice):
         return {
             'PeriodoImpositivo': self._build_period(invoice),
@@ -292,7 +299,7 @@ class RecievedInvoiceMapper(BaseInvoiceMapper):
             },
             'Contraparte': self._build_counterpart(invoice),
             'FechaRegContable': self.move_date(invoice).strftime(_DATE_FMT),
-            'CuotaDeducible': self.deductible_amount(invoice),
+            'CuotaDeducible': self._deductible_amount(invoice),
         }
         _taxes = self.taxes(invoice)
         if _taxes:
