@@ -239,6 +239,9 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
 
 class RecievedInvoiceMapper(BaseInvoiceMapper):
 
+    def _is_first_semester(self, invoice):
+        return self.specialkey_or_trascendence(invoice) == '14'
+
     def build_delete_request(self, invoice):
         return {
             'PeriodoImpositivo': self._build_period(invoice),
@@ -277,7 +280,7 @@ class RecievedInvoiceMapper(BaseInvoiceMapper):
             # TODO: NumRegistroAcuerdoFacturacion
             'ImporteTotal': self.total_amount(invoice),
             # TODO: BaseImponibleACoste
-            'DescripcionOperacion': self.description(invoice),
+            'DescripcionOperacion': self._description(invoice),
             'DesgloseFactura': {
                 # 'InversionSujetoPasivo': {
                 #     'DetalleIVA':
