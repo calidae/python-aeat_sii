@@ -14,6 +14,9 @@ _FIRST_SEMESTER_RECORD_DESCRIPTION = "Registro del Primer semestre"
 RECTIFIED_KINDS = frozenset({'R1', 'R2', 'R3', 'R4', 'R5'})
 OTHER_ID_TYPES = frozenset({'02', '03', '04', '05', '06', '07'})
 
+SEMESTER1_ISSUED_SPECIALKEY = '16'
+SEMESTER1_RECIEVED_SPECIALKEY = '14'
+
 
 def _format_period(period):
     return str(period).zfill(2)
@@ -93,7 +96,8 @@ class BaseInvoiceMapper(object):
 class IssuedInvoiceMapper(BaseInvoiceMapper):
 
     def _is_first_semester(self, invoice):
-        return self.specialkey_or_trascendence(invoice) == '16'
+        return self.specialkey_or_trascendence(invoice) == \
+            SEMESTER1_ISSUED_SPECIALKEY
 
     def build_delete_request(self, invoice):
         return {
@@ -242,7 +246,8 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
 class RecievedInvoiceMapper(BaseInvoiceMapper):
 
     def _is_first_semester(self, invoice):
-        return self.specialkey_or_trascendence(invoice) == '14'
+        return self.specialkey_or_trascendence(invoice) == \
+            SEMESTER1_RECIEVED_SPECIALKEY
 
     def _deductible_amount(self, invoice):
         return (
