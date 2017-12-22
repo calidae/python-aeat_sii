@@ -66,8 +66,13 @@ def test_simple_mapping():
     assert 'FacturasRectificadas' not in request_['FacturaRecibida']
     assert 'FacturasRectificadas' not in request_['FacturaRecibida']
     assert 'IDOtro' not in request_['FacturaRecibida']['Contraparte']
-    assert request_['FacturaRecibida']['Contraparte']['NIF'] == request_['IDFactura']['IDEmisorFactura']['NIF']
+    assert request_['FacturaRecibida']['Contraparte']['NIF'] == \
+        request_['IDFactura']['IDEmisorFactura']['NIF']
     assert request_['FacturaRecibida']['Contraparte']['NIF'] == '00000011B'
+    assert request_['FacturaRecibida']['DescripcionOperacion'] == \
+        "My Description"
+    assert request_['FacturaRecibida']['CuotaDeducible'] == 50
+    assert request_['FacturaRecibida']['FechaRegContable'] == '31-12-2017'
 
 
 def test_foreign_counterpart():
@@ -245,3 +250,43 @@ def test_intracommunitary_exempt():
     assert counterpart_id['IDType'] == issuer_id['IDType'] == '02'
     assert counterpart_id['CodigoPais'] == issuer_id['CodigoPais'] == 'FR'
     assert counterpart_id['ID'] == issuer_id['ID'] == 'FR00000011B'
+
+
+def test_recieved_invoice_first_semester_mapping():
+    invoice = {
+        'year': 2017,
+        'period': 5,
+        'nif': '00000010X',
+        'serial_number': 1,
+        'issue_date': date(year=2017, month=3, day=15),
+        'move_date': date(year=2017, month=3, day=15),
+        'deductible_amount': 50,
+        'invoice_kind': 'L1',
+        'specialkey_or_trascendence': '14',  # "Primer semestre"
+        'description': 'My Description',
+        'not_exempt_kind': 'S1',
+        'counterpart_name': 'Counterpart',
+        'counterpart_nif': '00000011B',
+        'counterpart_id_type': '01',
+        'counterpart_country': 'ES',
+        'taxes': [{
+            'tax_rate': .21,
+            'tax_base': 100,
+            'tax_amount': 21,
+            'tax_equivalence_surcharge_rate': .052,
+            'tax_equivalence_surcharge_amount': 5.2,
+        }, {
+            'tax_rate': .10,
+            'tax_base': 10,
+            'tax_amount': 1,
+        }],
+    }
+
+    mapper = RecievedTestInvoiceMapper()
+    request_ = mapper.build_submit_request(invoice)
+
+    assert request_['FacturaRecibida']['DescripcionOperacion'] == \
+        "Registro del Primer semestre"
+    assert request_['FacturaRecibida']['CuotaDeducible'] == 0
+    assert request_['FacturaRecibida']['FechaRegContable'] == \
+        date.today().strftime(mapping._DATE_FMT)

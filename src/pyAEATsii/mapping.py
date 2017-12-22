@@ -6,9 +6,16 @@ __all__ = [
     'RecievedInvoiceMapper',
 ]
 
+from datetime import date
+
 _DATE_FMT = '%d-%m-%Y'
+_FIRST_SEMESTER_RECORD_DESCRIPTION = "Registro del Primer semestre"
+
 RECTIFIED_KINDS = frozenset({'R1', 'R2', 'R3', 'R4', 'R5'})
 OTHER_ID_TYPES = frozenset({'02', '03', '04', '05', '06', '07'})
+
+SEMESTER1_ISSUED_SPECIALKEY = '16'
+SEMESTER1_RECIEVED_SPECIALKEY = '14'
 
 
 def _format_period(period):
@@ -78,8 +85,19 @@ class BaseInvoiceMapper(object):
             ret['NIF'] = self.counterpart_nif(invoice)
         return ret
 
+    def _description(self, invoice):
+        return (
+            self.description(invoice)
+            if not self._is_first_semester(invoice)
+            else _FIRST_SEMESTER_RECORD_DESCRIPTION
+        )
+
 
 class IssuedInvoiceMapper(BaseInvoiceMapper):
+
+    def _is_first_semester(self, invoice):
+        return self.specialkey_or_trascendence(invoice) == \
+            SEMESTER1_ISSUED_SPECIALKEY
 
     def build_delete_request(self, invoice):
         return {
@@ -110,7 +128,7 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
             # TODO: NumRegistroAcuerdoFacturacion
             'ImporteTotal': self.total_amount(invoice),
             # TODO: BaseImponibleACoste
-            'DescripcionOperacion': self.description(invoice),
+            'DescripcionOperacion': self._description(invoice),
             # TODO: DatosInmueble
             # TODO: ImporteTransmisionSujetoAIVA
             # TODO: EmitidaPorTerceros
@@ -227,6 +245,29 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
 
 class RecievedInvoiceMapper(BaseInvoiceMapper):
 
+    def _is_first_semester(self, invoice):
+        return self.specialkey_or_trascendence(invoice) == \
+            SEMESTER1_RECIEVED_SPECIALKEY
+
+    def _deductible_amount(self, invoice):
+        return (
+            self.deductible_amount(invoice)
+            if not self._is_first_semester(invoice)
+            else 0
+        )
+
+    def _move_date(self, invoice):
+        return (
+            self.move_date(invoice)
+            if not self._is_first_semester(invoice)
+            else self.sent_date(invoice)
+        )
+
+    def sent_date(self, invoice):
+        # Unless overriden, the date an invoice is sent to the SII system
+        # is assumed to be the date it is being mapped
+        return date.today()
+
     def build_delete_request(self, invoice):
         return {
             'PeriodoImpositivo': self._build_period(invoice),
@@ -265,7 +306,7 @@ class RecievedInvoiceMapper(BaseInvoiceMapper):
             # TODO: NumRegistroAcuerdoFacturacion
             'ImporteTotal': self.total_amount(invoice),
             # TODO: BaseImponibleACoste
-            'DescripcionOperacion': self.description(invoice),
+            'DescripcionOperacion': self._description(invoice),
             'DesgloseFactura': {
                 # 'InversionSujetoPasivo': {
                 #     'DetalleIVA':
@@ -276,8 +317,8 @@ class RecievedInvoiceMapper(BaseInvoiceMapper):
                 }
             },
             'Contraparte': self._build_counterpart(invoice),
-            'FechaRegContable': self.move_date(invoice).strftime(_DATE_FMT),
-            'CuotaDeducible': self.deductible_amount(invoice),
+            'FechaRegContable': self._move_date(invoice).strftime(_DATE_FMT),
+            'CuotaDeducible': self._deductible_amount(invoice),
         }
         _taxes = self.taxes(invoice)
         if _taxes:
