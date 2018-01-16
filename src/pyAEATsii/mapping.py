@@ -323,7 +323,7 @@ class RecievedInvoiceMapper(BaseInvoiceMapper):
         _taxes = self.taxes(invoice)
         if _taxes:
             ret['DesgloseFactura']['DesgloseIVA']['DetalleIVA'].extend(
-                list(map(self.build_taxes, [invoice] * len(_taxes), _taxes)))
+                self.build_taxes(invoice, tax) for tax in _taxes)
         else:
             ret['DesgloseFactura']['DesgloseIVA']['DetalleIVA'].append({
                 'BaseImponible': self.untaxed_amount(invoice)})
