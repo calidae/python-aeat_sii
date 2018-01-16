@@ -193,7 +193,7 @@ def test_intracommunitary_subjected():
 
     counterpart = request_['FacturaRecibida']['Contraparte']
     invoice_issuer = request_['IDFactura']['IDEmisorFactura']
-    print request_
+    print(request_)
     taxes = request_['FacturaRecibida']['DesgloseFactura'][
         'DesgloseIVA']['DetalleIVA']
     assert len(taxes) == 2
@@ -235,7 +235,7 @@ def test_intracommunitary_exempt():
 
     mapper = RecievedTestInvoiceMapper()
     request_ = mapper.build_submit_request(invoice)
-    print request_
+    print(request_)
     counterpart = request_['FacturaRecibida']['Contraparte']
     invoice_issuer = request_['IDFactura']['IDEmisorFactura']
     taxes = request_['FacturaRecibida']['DesgloseFactura'][
