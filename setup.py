@@ -13,7 +13,7 @@ tests_require = [
 
 setup(
     name='pyAEATsii',
-    version='0.2.6',
+    version='0.2.7',
     description='A python wrapper for the AEAT SII webservices',
     author="Calidae S.L.",
     author_email="dev@calidae.com",
