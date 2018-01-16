@@ -5,7 +5,10 @@ __all__ = [
 ]
 
 
-from itertools import ifilter
+try:
+    from itertools import ifilter as filter
+except ImportError:
+    pass
 
 
 class _FixedValue(object):
@@ -36,7 +39,7 @@ class _Coalesce(object):
             for callback in self._callbacks
         )
         try:
-            return next(ifilter(
+            return next(filter(
                 self._filter, results
             ))
         except StopIteration:

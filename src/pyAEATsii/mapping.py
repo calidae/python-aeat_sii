@@ -169,7 +169,7 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
                     'CuotaRepercutida': 0
                 }]
             else:
-                tax_detail = map(self.build_taxes, self.taxes(invoice))
+                tax_detail = [self.build_taxes(t) for t in self.taxes(invoice)]
             if tax_detail:
                 detail['Sujeta'].update({
                     'NoExenta': {
@@ -323,7 +323,7 @@ class RecievedInvoiceMapper(BaseInvoiceMapper):
         _taxes = self.taxes(invoice)
         if _taxes:
             ret['DesgloseFactura']['DesgloseIVA']['DetalleIVA'].extend(
-                map(self.build_taxes, [invoice] * len(_taxes), _taxes))
+                list(map(self.build_taxes, [invoice] * len(_taxes), _taxes)))
         else:
             ret['DesgloseFactura']['DesgloseIVA']['DetalleIVA'].append({
                 'BaseImponible': self.untaxed_amount(invoice)})

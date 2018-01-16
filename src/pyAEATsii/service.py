@@ -63,7 +63,7 @@ class _IssuedInvoiceService(object):
 
     def submit(self, headers, invoices, mapper=None):
         body = (
-            map(mapper.build_submit_request, invoices)
+            [mapper.build_submit_request(i) for i in invoices]
             if mapper
             else invoices
         )
@@ -75,7 +75,7 @@ class _IssuedInvoiceService(object):
 
     def cancel(self, headers, invoices, mapper=None):
         body = (
-            map(mapper.build_delete_request, invoices)
+            [mapper.build_delete_request(i) for i in invoices]
             if mapper
             else invoices
         )
@@ -100,7 +100,7 @@ class _RecievedInvoiceService(object):
 
     def submit(self, headers, invoices, mapper=None):
         body = (
-            map(mapper.build_submit_request, invoices)
+            [mapper.build_submit_request(i) for i in invoices]
             if mapper
             else invoices
         )
@@ -112,7 +112,7 @@ class _RecievedInvoiceService(object):
 
     def cancel(self, headers, invoices, mapper=None):
         body = (
-            map(mapper.build_delete_request, invoices)
+            [mapper.build_delete_request(i) for i in invoices]
             if mapper
             else invoices
         )
