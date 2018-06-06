@@ -50,7 +50,7 @@ def test_simple_mapping():
     mapper = RecievedTestInvoiceMapper()
     request_ = mapper.build_submit_request(invoice)
 
-    assert request_['PeriodoImpositivo']['Periodo'] == '05'
+    assert request_['PeriodoLiquidacion']['Periodo'] == '05'
     assert request_['IDFactura']['FechaExpedicionFacturaEmisor'] == '31-12-2017'
     taxes = request_['FacturaRecibida']['DesgloseFactura']['DesgloseIVA']['DetalleIVA']
     assert len(taxes) == 2

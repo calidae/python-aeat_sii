@@ -42,7 +42,7 @@ def test_issued_invoice_mapping():
     }
     mapper = IssuedTestInvoiceMapper()
     request_ = mapper.build_submit_request(invoice)
-    assert request_['PeriodoImpositivo']['Periodo'] == '05'
+    assert request_['PeriodoLiquidacion']['Periodo'] == '05'
     assert request_['IDFactura']['FechaExpedicionFacturaEmisor'] == '31-12-2017'
     taxes = request_['FacturaExpedida']['TipoDesglose']['DesgloseFactura']['Sujeta']['NoExenta']['DesgloseIVA']['DetalleIVA']
     assert len(taxes) == 2
@@ -255,7 +255,7 @@ def test_issued_invoice_inv_subj_pass_mapping():
     }
     mapper = IssuedTestInvoiceMapper()
     request_ = mapper.build_submit_request(invoice)
-    assert request_['PeriodoImpositivo']['Periodo'] == '05'
+    assert request_['PeriodoLiquidacion']['Periodo'] == '05'
     assert request_['IDFactura']['FechaExpedicionFacturaEmisor'] == \
         '31-12-2017'
     taxes = request_['FacturaExpedida']['TipoDesglose'][
@@ -295,7 +295,7 @@ def test_issued_invoice_inv_subj_pass_intra_mapping():
     }
     mapper = IssuedTestInvoiceMapper()
     request_ = mapper.build_submit_request(invoice)
-    assert request_['PeriodoImpositivo']['Periodo'] == '05'
+    assert request_['PeriodoLiquidacion']['Periodo'] == '05'
     assert request_['IDFactura']['FechaExpedicionFacturaEmisor'] == \
         '31-12-2017'
     assert 'DesgloseFactura' not in request_['FacturaExpedida']['TipoDesglose']
@@ -338,12 +338,12 @@ def test_issued_invoice_goods_intra_mapping():
     }
     mapper = IssuedTestInvoiceMapper()
     request_ = mapper.build_submit_request(invoice)
-    assert request_['PeriodoImpositivo']['Periodo'] == '05'
+    assert request_['PeriodoLiquidacion']['Periodo'] == '05'
     assert request_['IDFactura']['FechaExpedicionFacturaEmisor'] == \
         '31-12-2017'
     assert request_['FacturaExpedida']['TipoDesglose'][
         'DesgloseTipoOperacion']['Entrega']['Sujeta']['Exenta'][
-        'BaseImponible'] == 100
+            'DetalleExenta']['BaseImponible'] == 100
     assert 'ImporteRectificacion' not in request_['FacturaExpedida']
     assert 'FacturasRectificadas' not in request_['FacturaExpedida']
     assert 'FacturasRectificadas' not in request_['FacturaExpedida']
