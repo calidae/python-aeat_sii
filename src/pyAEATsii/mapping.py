@@ -28,17 +28,17 @@ def _rate_to_percent(rate):
 
 def build_query_filter(year=None, period=None):
     return {
-        'PeriodoImpositivo': {
+        'PeriodoLiquidacion': {
             'Ejercicio': year,
             'Periodo': _format_period(period),
         }
         # TODO: IDFactura, Contraparte,
-        # FechaPresentacion, FacturaModificada,
+        # FechaPresentacion, FechaCuadre, FacturaModificada,
         # EstadoCuadre, ClavePaginacion
     }
 
 
-def get_headers(name=None, vat=None, comm_kind=None, version='1.0'):
+def get_headers(name=None, vat=None, comm_kind=None, version='1.1'):
     return {
         'IDVersionSii': version,
         'Titular': {
@@ -101,7 +101,7 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
 
     def build_delete_request(self, invoice):
         return {
-            'PeriodoImpositivo': self._build_period(invoice),
+            'PeriodoLiquidacion': self._build_period(invoice),
             'IDFactura': self._build_invoice_id(invoice),
         }
 
@@ -118,8 +118,10 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
     def build_issued_invoice(self, invoice):
         ret = {
             'TipoFactura': self.invoice_kind(invoice),
+            # TODO: TipoRectificativa
             # TODO: FacturasAgrupadas
             # TODO: FacturasRectificadas
+            # TODO: ImporteRectificacion
             # TODO: FechaOperacion
             'ClaveRegimenEspecialOTrascendencia':
                 self.specialkey_or_trascendence(invoice),
@@ -129,11 +131,19 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
             'ImporteTotal': self.total_amount(invoice),
             # TODO: BaseImponibleACoste
             'DescripcionOperacion': self._description(invoice),
+            # TODO: RefExterna
+            # TODO: FacturaSimplificadaArticulos7.2_7.3
+            # TODO: EntidadSucedida
+            # TODO: RegPrevioGGEEoREDEMEoCompetencia
+            # TODO: Macrodato
             # TODO: DatosInmueble
-            # TODO: ImporteTransmisionSujetoAIVA
-            # TODO: EmitidaPorTerceros
+            # TODO: ImporteTransmisionInmueblesSujetoAIVA
+            # TODO: EmitidaPorTercerosODestinatario
+            # TODO: FacturacionDispAdicinalTerceraYsextayDelMercadoOrganizadoDelGas
             # TODO: VariosDestinatarios
             # TODO: Cupon
+            # TODO: FacturaSinIdentifDestinatarioArticulo6.1.d
+            # TODO: Contraparte
             'TipoDesglose': {},
         }
         self._update_counterpart(ret, invoice)
@@ -182,8 +192,10 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
         elif self.exempt_kind(invoice):
             detail['Sujeta'].update({
                 'Exenta': {
-                    'CausaExencion': self.exempt_kind(invoice),
-                    'BaseImponible': self.untaxed_amount(invoice),
+                    'DetalleExenta': {
+                        'CausaExencion': self.exempt_kind(invoice),
+                        'BaseImponible': self.untaxed_amount(invoice),
+                    }
                 }
             })
         if location_rules:
@@ -270,13 +282,13 @@ class RecievedInvoiceMapper(BaseInvoiceMapper):
 
     def build_delete_request(self, invoice):
         return {
-            'PeriodoImpositivo': self._build_period(invoice),
+            'PeriodoLiquidacion': self._build_period(invoice),
             'IDFactura': self.build_named_invoice_id(invoice),
         }
 
     def build_submit_request(self, invoice):
         return {
-            'PeriodoImpositivo': self._build_period(invoice),
+            'PeriodoLiquidacion': self._build_period(invoice),
             'IDFactura': self._build_invoice_id(invoice),
             'FacturaRecibida': self.build_invoice(invoice),
         }
