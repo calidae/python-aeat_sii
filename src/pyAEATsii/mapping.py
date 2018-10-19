@@ -1,7 +1,6 @@
 
 __all__ = [
     'get_headers',
-    'build_query_filter',
     'IssuedInvoiceMapper',
     'RecievedInvoiceMapper',
 ]
@@ -24,18 +23,6 @@ def _format_period(period):
 
 def _rate_to_percent(rate):
     return None if rate is None else abs(round(100 * rate, 2))
-
-
-def build_query_filter(year=None, period=None):
-    return {
-        'PeriodoLiquidacion': {
-            'Ejercicio': year,
-            'Periodo': _format_period(period),
-        }
-        # TODO: IDFactura, Contraparte,
-        # FechaPresentacion, FechaCuadre, FacturaModificada,
-        # EstadoCuadre, ClavePaginacion
-    }
 
 
 def get_headers(name=None, vat=None, comm_kind=None, version='1.1'):
@@ -91,6 +78,20 @@ class BaseInvoiceMapper(object):
             if not self._is_first_semester(invoice)
             else _FIRST_SEMESTER_RECORD_DESCRIPTION
         )
+
+    def build_query_filter(self, year=None, period=None, last_invoice=None):
+        # TODO: IDFactura, Contraparte,
+        # FechaPresentacion, FechaCuadre, FacturaModificada,
+        # EstadoCuadre
+        result = {
+            'PeriodoLiquidacion': {
+                'Ejercicio': year,
+                'Periodo': _format_period(period),
+                }
+            }
+        if last_invoice:
+            result['ClavePaginacion'] = self._build_invoice_id(last_invoice)
+        return result
 
 
 class IssuedInvoiceMapper(BaseInvoiceMapper):
