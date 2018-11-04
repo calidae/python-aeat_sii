@@ -90,7 +90,7 @@ class BaseInvoiceMapper(object):
                 }
             }
         if last_invoice:
-            result['ClavePaginacion'] = self._build_invoice_id(last_invoice)
+            result['ClavePaginacion'] = last_invoice
         return result
 
 
