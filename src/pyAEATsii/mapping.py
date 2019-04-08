@@ -138,7 +138,8 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
             # TODO: Macrodato
             # TODO: DatosInmueble
             # TODO: ImporteTransmisionInmueblesSujetoAIVA
-            # TODO: EmitidaPorTercerosODestinatario
+            'EmitidaPorTercerosODestinatario': ('S' if
+                self.issued_by_party(invoice) else 'N'),
             # TODO: FacturacionDispAdicinalTerceraYsextayDelMercadoOrganizadoDelGas
             # TODO: VariosDestinatarios
             # TODO: Cupon
@@ -253,6 +254,9 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
             'CuotaRecargoEquivalencia':
                 self.tax_equivalence_surcharge_amount(tax),
         }
+
+    def issued_by_party(self, invoice):
+        return False
 
 
 class RecievedInvoiceMapper(BaseInvoiceMapper):
