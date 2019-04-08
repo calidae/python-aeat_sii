@@ -1,7 +1,10 @@
 
 from datetime import date
 
-import unittest.mock
+try:
+    import unittest.mock as mock
+except ImportError:
+    import mock
 
 from pyAEATsii import mapping
 
@@ -397,7 +400,7 @@ def test_issued_invoice_issued_by_party_mapping():
             return True
 
     mapper = _Mapper()
-    invoice = unittest.mock.MagicMock()
+    invoice = mock.MagicMock()
     request_ = mapper.build_submit_request(invoice)
 
     assert (
