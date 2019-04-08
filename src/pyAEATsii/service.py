@@ -14,10 +14,13 @@ from zeep.plugins import HistoryPlugin
 from .plugins import LoggingPlugin
 from .mapping import build_query_filter
 
+
 _logger = getLogger(__name__)
 
-wsdl_base = ('https://www2.agenciatributaria.gob.es/static_files/common/'
+wsdl_base = (
+    'https://www2.agenciatributaria.gob.es/static_files/common/'
     'internet/dep/aplicaciones/es/aeat/ssii_1_1/fact/ws/')
+
 
 def _get_client(wsdl, public_crt, private_key, test=False):
     session = Session()

@@ -32,19 +32,19 @@ def test_coalesce_0():
 
 def test_coalesce_else():
     coalesce = callback_utils.coalesce([], else_='ELSE')
-    assert coalesce(None) is 'ELSE'
+    assert coalesce(None) == 'ELSE'
 
 
 def test_coalesce_2():
     coalesce = callback_utils.coalesce([
         _return_none, _return_none
     ], else_='ELSE')
-    assert coalesce(None) is 'ELSE'
+    assert coalesce(None) == 'ELSE'
 
 
 def test_coalesce_10():
     coalesce = callback_utils.coalesce([_return_none] * 10, else_='ELSE')
-    assert coalesce(None) is 'ELSE'
+    assert coalesce(None) == 'ELSE'
 
 
 def test_coalesce_self():
@@ -55,7 +55,7 @@ def test_coalesce_self():
             return self.coalesce(x)
 
     mapper = Mapper()
-    assert mapper.call('SOMETHING') is 'ELSE'
+    assert mapper.call('SOMETHING') == 'ELSE'
 
 
 def test_coalesce_calls():
@@ -69,5 +69,5 @@ def test_coalesce_calls():
     value = coalesce('VALUE')
 
     assert first.called
-    assert value is 'MOCK'
+    assert value == 'MOCK'
     assert not last.called

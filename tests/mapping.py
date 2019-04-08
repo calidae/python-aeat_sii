@@ -1,8 +1,6 @@
 
 from operator import methodcaller
 
-from pyAEATsii import callback_utils
-
 
 class BaseTestInvoiceMapper(object):
     year = methodcaller('get', 'year')
@@ -32,5 +30,7 @@ class BaseTestInvoiceMapper(object):
     tax_rate = methodcaller('get', 'tax_rate')
     tax_base = methodcaller('get', 'tax_base')
     tax_amount = methodcaller('get', 'tax_amount')
-    tax_equivalence_surcharge_rate = methodcaller('get', 'tax_equivalence_surcharge_rate')
-    tax_equivalence_surcharge_amount = methodcaller('get', 'tax_equivalence_surcharge_amount')
+    tax_equivalence_surcharge_rate = methodcaller(
+        'get', 'tax_equivalence_surcharge_rate')
+    tax_equivalence_surcharge_amount = methodcaller(
+        'get', 'tax_equivalence_surcharge_amount')
