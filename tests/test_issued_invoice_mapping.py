@@ -1,6 +1,8 @@
 
 from datetime import date
 
+import unittest.mock
+
 from pyAEATsii import mapping
 
 from .mapping import BaseTestInvoiceMapper
@@ -385,4 +387,20 @@ def test_issued_invoice_first_semester_mapping():
     assert (
         request_['FacturaExpedida']['DescripcionOperacion'] ==
         "Registro del Primer semestre"
+    )
+
+
+def test_issued_invoice_issued_by_party_mapping():
+
+    class _Mapper(IssuedTestInvoiceMapper):
+        def issued_by_party(self, invoice):
+            return True
+
+    mapper = _Mapper()
+    invoice = unittest.mock.MagicMock()
+    request_ = mapper.build_submit_request(invoice)
+
+    assert (
+        request_['FacturaExpedida']['EmitidaPorTercerosODestinatario']
+        == 'S'
     )
