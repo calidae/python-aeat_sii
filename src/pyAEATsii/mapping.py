@@ -138,9 +138,9 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
             # TODO: Macrodato
             # TODO: DatosInmueble
             # TODO: ImporteTransmisionInmueblesSujetoAIVA
-            'EmitidaPorTercerosODestinatario': ('S' if
-                self.issued_by_party(invoice) else 'N'),
-            # TODO: FacturacionDispAdicinalTerceraYsextayDelMercadoOrganizadoDelGas
+            'EmitidaPorTercerosODestinatario':
+                'S' if self.issued_by_party(invoice) else 'N',
+            # TODO: FacturacionDispAdicinalTerceraYsextayDelMercadoOrganizadoDelGas  # noqa: E501
             # TODO: VariosDestinatarios
             # TODO: Cupon
             # TODO: FacturaSinIdentifDestinatarioArticulo6.1.d
@@ -148,13 +148,24 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
             'TipoDesglose': {},
         }
         self._update_counterpart(ret, invoice)
-        must_detail_op = (ret.get('Contraparte', {}) and (
-            'IDOtro' in ret['Contraparte'] or ('NIF' in ret['Contraparte'] and
-                ret['Contraparte']['NIF'].startswith('N')))
+        must_detail_op = (
+            ret.get('Contraparte', {})
+            and (
+                'IDOtro' in ret['Contraparte']
+                or (
+                    'NIF' in ret['Contraparte']
+                    and
+                    ret['Contraparte']['NIF'].startswith('N')
+                )
+            )
         )
-        location_rules = (self.specialkey_or_trascendence(invoice) == '08' or
-            (must_detail_op and self.not_exempt_kind(invoice) == 'S2'))
-
+        location_rules = (
+            self.specialkey_or_trascendence(invoice) == '08'
+            or (
+                must_detail_op
+                and self.not_exempt_kind(invoice) == 'S2'
+            )
+        )
         detail = {
             'Sujeta': {},
             'NoSujeta': {}
@@ -215,14 +226,13 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
 
     def _update_total_amount(self, ret, invoice):
         if (
-            ret['TipoFactura'] == 'R5' and
-            ret['TipoDesglose']['DesgloseFactura']['Sujeta'].get('NoExenta',
-                None) and
-            len(
+            ret['TipoFactura'] == 'R5'
+            and ret['TipoDesglose']['DesgloseFactura']['Sujeta'].get(
+                'NoExenta', None)
+            and 1 == len(
                 ret['TipoDesglose']['DesgloseFactura']['Sujeta']['NoExenta']
                 ['DesgloseIVA']['DetalleIVA']
-            ) == 1 and
-            (
+            ) and (
                 ret['TipoDesglose']['DesgloseFactura']['Sujeta']['NoExenta']
                 ['DesgloseIVA']['DetalleIVA'][0]['BaseImponible'] == 0
             )

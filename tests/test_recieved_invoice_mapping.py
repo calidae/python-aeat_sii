@@ -51,8 +51,12 @@ def test_simple_mapping():
     request_ = mapper.build_submit_request(invoice)
 
     assert request_['PeriodoLiquidacion']['Periodo'] == '05'
-    assert request_['IDFactura']['FechaExpedicionFacturaEmisor'] == '31-12-2017'
-    taxes = request_['FacturaRecibida']['DesgloseFactura']['DesgloseIVA']['DetalleIVA']
+    assert (
+        request_['IDFactura']['FechaExpedicionFacturaEmisor']
+        == '31-12-2017')
+    taxes = (
+        request_['FacturaRecibida']['DesgloseFactura']
+        ['DesgloseIVA']['DetalleIVA'])
     assert len(taxes) == 2
     assert taxes[0]['BaseImponible'] == 100
     assert taxes[1]['BaseImponible'] == 10
@@ -147,7 +151,9 @@ def test_reagyp_mapping():
     mapper = RecievedTestInvoiceMapper()
     request_ = mapper.build_submit_request(invoice)
 
-    taxes = request_['FacturaRecibida']['DesgloseFactura']['DesgloseIVA']['DetalleIVA']
+    taxes = (
+        request_['FacturaRecibida']['DesgloseFactura']
+        ['DesgloseIVA']['DetalleIVA'])
 
     assert 'BaseImponible' in taxes[0]
     assert 'TipoImpositivo' not in taxes[0]

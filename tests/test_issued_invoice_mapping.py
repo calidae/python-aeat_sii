@@ -48,8 +48,12 @@ def test_issued_invoice_mapping():
     mapper = IssuedTestInvoiceMapper()
     request_ = mapper.build_submit_request(invoice)
     assert request_['PeriodoLiquidacion']['Periodo'] == '05'
-    assert request_['IDFactura']['FechaExpedicionFacturaEmisor'] == '31-12-2017'
-    taxes = request_['FacturaExpedida']['TipoDesglose']['DesgloseFactura']['Sujeta']['NoExenta']['DesgloseIVA']['DetalleIVA']
+    assert (
+        request_['IDFactura']['FechaExpedicionFacturaEmisor']
+        == '31-12-2017')
+    taxes = (
+        request_['FacturaExpedida']['TipoDesglose']['DesgloseFactura']
+        ['Sujeta']['NoExenta']['DesgloseIVA']['DetalleIVA'])
     assert len(taxes) == 2
     assert taxes[0]['BaseImponible'] == 100
     assert taxes[1]['BaseImponible'] == 10
@@ -60,9 +64,12 @@ def test_issued_invoice_mapping():
     assert 'FacturasRectificadas' not in request_['FacturaExpedida']
     assert 'IDOtro' not in request_['FacturaExpedida']['Contraparte']
     assert request_['FacturaExpedida']['Contraparte']['NIF'] == '00000011B'
-    assert request_['FacturaExpedida']['DescripcionOperacion'] == \
-        "My Description"
-    assert request_['FacturaExpedida']['EmitidaPorTercerosODestinatario'] == 'N'
+    assert (
+        request_['FacturaExpedida']['DescripcionOperacion']
+        == 'My Description')
+    assert (
+        request_['FacturaExpedida']['EmitidaPorTercerosODestinatario']
+        == 'N')
 
 
 def test_uncensed_counterpart():
@@ -95,7 +102,9 @@ def test_uncensed_counterpart():
     mapper = IssuedTestInvoiceMapper()
     request_ = mapper.build_submit_request(invoice)
     assert 'NIF' not in request_['FacturaExpedida']['Contraparte']
-    assert request_['FacturaExpedida']['Contraparte']['IDOtro']['ID'] == '00000011B'
+    assert (
+        request_['FacturaExpedida']['Contraparte']['IDOtro']['ID']
+        == '00000011B')
 
 
 def test_rectified_issued_invoice_mapping():
@@ -132,8 +141,12 @@ def test_rectified_issued_invoice_mapping():
     request_ = mapper.build_submit_request(invoice)
 
     assert request_['FacturaExpedida']['TipoRectificativa'] == 'S'
-    assert request_['FacturaExpedida']['ImporteRectificacion']['BaseRectificada'] == 100
-    assert request_['FacturaExpedida']['ImporteRectificacion']['CuotaRectificada'] == 200
+    assert (
+        request_['FacturaExpedida']['ImporteRectificacion']
+        ['BaseRectificada'] == 100)
+    assert (
+        request_['FacturaExpedida']['ImporteRectificacion']
+        ['CuotaRectificada'] == 200)
 
 
 def test_rectified_by_difference_issued_invoice_mapping():
@@ -237,7 +250,9 @@ def test_summary_issued_invoice_id():
     mapper = IssuedTestInvoiceMapper()
     request_ = mapper.build_submit_request(invoice)
 
-    assert request_['IDFactura']['NumSerieFacturaEmisorResumenFin'] == 'FINAL_ID'
+    assert (
+        request_['IDFactura']['NumSerieFacturaEmisorResumenFin']
+        == 'FINAL_ID')
 
 
 def test_issued_invoice_inv_subj_pass_mapping():
