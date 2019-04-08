@@ -57,6 +57,7 @@ def test_issued_invoice_mapping():
     assert request_['FacturaExpedida']['Contraparte']['NIF'] == '00000011B'
     assert request_['FacturaExpedida']['DescripcionOperacion'] == \
         "My Description"
+    assert request_['FacturaExpedida']['EmitidaPorTercerosODestinatario'] == 'N'
 
 
 def test_uncensed_counterpart():
