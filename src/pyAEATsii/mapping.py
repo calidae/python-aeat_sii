@@ -284,30 +284,17 @@ class RecievedInvoiceMapper(BaseInvoiceMapper):
     def build_delete_request(self, invoice):
         return {
             'PeriodoLiquidacion': self._build_period(invoice),
-            'IDFactura': self.build_named_invoice_id(invoice),
+            'IDFactura': self._build_invoice_id(invoice),
         }
 
     def build_submit_request(self, invoice):
-        return {
-            'PeriodoLiquidacion': self._build_period(invoice),
-            'IDFactura': self._build_invoice_id(invoice),
-            'FacturaRecibida': self.build_invoice(invoice),
-        }
+        request = self.build_delete_request(invoice)
+        request['FacturaRecibida'] = self.build_received_invoice(invoice)
+        return request
 
     _build_issuer_id = BaseInvoiceMapper._build_counterpart
 
-    def build_named_invoice_id(self, invoice):
-        return {
-            'IDEmisorFactura': {
-                'NombreRazon': self.counterpart_name(invoice),
-                'NIF': self.counterpart_nif(invoice),
-            },
-            'NumSerieFacturaEmisor': self.serial_number(invoice),
-            'FechaExpedicionFacturaEmisor':
-                self.issue_date(invoice).strftime(_DATE_FMT),
-        }
-
-    def build_invoice(self, invoice):
+    def build_received_invoice(self, invoice):
         ret = {
             'TipoFactura': self.invoice_kind(invoice),
             # TODO: FacturasAgrupadas: {IDFacturaAgrupada: [{Num, Fecha}]}
