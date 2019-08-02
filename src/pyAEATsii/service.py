@@ -71,7 +71,12 @@ class _IssuedInvoiceService(object):
         _logger.debug(response_)
         return response_
 
-    def cancel(self, headers, body, mapper=None):
+    def cancel(self, headers, invoices, mapper=None):
+        body = (
+            [mapper.build_delete_request(i) for i in invoices]
+            if mapper
+            else invoices
+        )
         _logger.debug(body)
         response_ = self.service.AnulacionLRFacturasEmitidas(
             headers, body)
@@ -105,7 +110,12 @@ class _RecievedInvoiceService(object):
         _logger.debug(response_)
         return response_
 
-    def cancel(self, headers, body, mapper=None):
+    def cancel(self, headers, invoices, mapper=None):
+        body = (
+            [mapper.build_delete_request(i) for i in invoices]
+            if mapper
+            else invoices
+        )
         _logger.debug(body)
         response_ = self.service.AnulacionLRFacturasRecibidas(
             headers, body)
