@@ -122,7 +122,7 @@ class IssuedInvoiceMapper(BaseInvoiceMapper):
             # TODO: FacturasAgrupadas
             # TODO: FacturasRectificadas
             # TODO: ImporteRectificacion
-            # TODO: FechaOperacion
+            'FechaOperacion': self.transaction_date(invoice),
             'ClaveRegimenEspecialOTrascendencia':
                 self.specialkey_or_trascendence(invoice),
             # TODO: ClaveRegimenEspecialOTrascendenciaAdicional1
@@ -324,7 +324,7 @@ class RecievedInvoiceMapper(BaseInvoiceMapper):
         ret = {
             'TipoFactura': self.invoice_kind(invoice),
             # TODO: FacturasAgrupadas: {IDFacturaAgrupada: [{Num, Fecha}]}
-            # TODO: FechaOperacion
+            'FechaOperacion': self.transaction_date(invoice),
             'ClaveRegimenEspecialOTrascendencia':
                 self.specialkey_or_trascendence(invoice),
             # TODO: ClaveRegimenEspecialOTrascendenciaAdicional1
