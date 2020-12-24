@@ -19,7 +19,7 @@ _logger = getLogger(__name__)
 
 wsdl_base = (
     'https://www2.agenciatributaria.gob.es/static_files/common/'
-    'internet/dep/aplicaciones/es/aeat/ssii_1_1/fact/ws/')
+    'internet/dep/aplicaciones/es/aeat/ssii_1_1_bis/fact/ws/')
 
 
 def _get_client(wsdl, public_crt, private_key, test=False):
