@@ -12,7 +12,6 @@ from zeep.transports import Transport
 from zeep.plugins import HistoryPlugin
 
 from .plugins import LoggingPlugin
-from .mapping import build_query_filter
 
 
 _logger = getLogger(__name__)
@@ -75,20 +74,17 @@ class _IssuedInvoiceService(object):
         _logger.debug(response_)
         return response_
 
-    def cancel(self, headers, invoices, mapper=None):
-        body = (
-            [mapper.build_delete_request(i) for i in invoices]
-            if mapper
-            else invoices
-        )
+    def cancel(self, headers, body, mapper=None):
         _logger.debug(body)
         response_ = self.service.AnulacionLRFacturasEmitidas(
             headers, body)
         _logger.debug(response_)
         return response_
 
-    def query(self, headers, year=None, period=None):
-        filter_ = build_query_filter(year=year, period=period)
+    def query(self, headers, year=None, period=None, mapper=None,
+            last_invoice=None):
+        filter_ = mapper.build_query_filter(year=year, period=period,
+            last_invoice=last_invoice)
         _logger.debug(filter_)
         response_ = self.service.ConsultaLRFacturasEmitidas(
             headers, filter_)
@@ -112,20 +108,17 @@ class _RecievedInvoiceService(object):
         _logger.debug(response_)
         return response_
 
-    def cancel(self, headers, invoices, mapper=None):
-        body = (
-            [mapper.build_delete_request(i) for i in invoices]
-            if mapper
-            else invoices
-        )
+    def cancel(self, headers, body, mapper=None):
         _logger.debug(body)
         response_ = self.service.AnulacionLRFacturasRecibidas(
             headers, body)
         _logger.debug(response_)
         return response_
 
-    def query(self, headers, year=None, period=None):
-        filter_ = build_query_filter(year=year, period=period)
+    def query(self, headers, year=None, period=None, mapper=None,
+            last_invoice=None):
+        filter_ = mapper.build_query_filter(year=year, period=period,
+            last_invoice=last_invoice)
         _logger.debug(filter_)
         response_ = self.service.ConsultaLRFacturasRecibidas(
             headers, filter_)

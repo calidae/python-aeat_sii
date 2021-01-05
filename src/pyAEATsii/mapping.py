@@ -1,7 +1,6 @@
 
 __all__ = [
     'get_headers',
-    'build_query_filter',
     'IssuedInvoiceMapper',
     'RecievedInvoiceMapper',
 ]
@@ -24,18 +23,6 @@ def _format_period(period):
 
 def _rate_to_percent(rate):
     return None if rate is None else abs(round(100 * rate, 2))
-
-
-def build_query_filter(year=None, period=None):
-    return {
-        'PeriodoLiquidacion': {
-            'Ejercicio': year,
-            'Periodo': _format_period(period),
-        }
-        # TODO: IDFactura, Contraparte,
-        # FechaPresentacion, FechaCuadre, FacturaModificada,
-        # EstadoCuadre, ClavePaginacion
-    }
 
 
 def get_headers(name=None, vat=None, comm_kind=None, version='1.1'):
@@ -91,6 +78,20 @@ class BaseInvoiceMapper(object):
             if not self._is_first_semester(invoice)
             else _FIRST_SEMESTER_RECORD_DESCRIPTION
         )
+
+    def build_query_filter(self, year=None, period=None, last_invoice=None):
+        # TODO: IDFactura, Contraparte,
+        # FechaPresentacion, FechaCuadre, FacturaModificada,
+        # EstadoCuadre
+        result = {
+            'PeriodoLiquidacion': {
+                'Ejercicio': year,
+                'Periodo': _format_period(period),
+                }
+            }
+        if last_invoice:
+            result['ClavePaginacion'] = last_invoice
+        return result
 
 
 class IssuedInvoiceMapper(BaseInvoiceMapper):
@@ -297,30 +298,17 @@ class RecievedInvoiceMapper(BaseInvoiceMapper):
     def build_delete_request(self, invoice):
         return {
             'PeriodoLiquidacion': self._build_period(invoice),
-            'IDFactura': self.build_named_invoice_id(invoice),
+            'IDFactura': self._build_invoice_id(invoice),
         }
 
     def build_submit_request(self, invoice):
-        return {
-            'PeriodoLiquidacion': self._build_period(invoice),
-            'IDFactura': self._build_invoice_id(invoice),
-            'FacturaRecibida': self.build_invoice(invoice),
-        }
+        request = self.build_delete_request(invoice)
+        request['FacturaRecibida'] = self.build_received_invoice(invoice)
+        return request
 
     _build_issuer_id = BaseInvoiceMapper._build_counterpart
 
-    def build_named_invoice_id(self, invoice):
-        return {
-            'IDEmisorFactura': {
-                'NombreRazon': self.counterpart_name(invoice),
-                'NIF': self.counterpart_nif(invoice),
-            },
-            'NumSerieFacturaEmisor': self.serial_number(invoice),
-            'FechaExpedicionFacturaEmisor':
-                self.issue_date(invoice).strftime(_DATE_FMT),
-        }
-
-    def build_invoice(self, invoice):
+    def build_received_invoice(self, invoice):
         ret = {
             'TipoFactura': self.invoice_kind(invoice),
             # TODO: FacturasAgrupadas: {IDFacturaAgrupada: [{Num, Fecha}]}
